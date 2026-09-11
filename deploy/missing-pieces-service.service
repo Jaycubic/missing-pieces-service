@@ -4,9 +4,9 @@ After=network.target postgresql.service
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/missing-pieces-service
-EnvironmentFile=/opt/missing-pieces-service/.env
-ExecStart=/opt/missing-pieces-service/target/release/missing-pieces-service
+WorkingDirectory=/opt/View/missing-pieces-service
+EnvironmentFile=/opt/View/missing-pieces-service/.env
+ExecStart=/opt/View/missing-pieces-service/target/release/missing-pieces-service
 Restart=on-failure
 RestartSec=3
 User=www-data
