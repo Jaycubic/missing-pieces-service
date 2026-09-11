@@ -1,0 +1,11 @@
+{
+  "name": "missing-pieces-web-assets",
+  "private": true,
+  "description": "Build-time only. Compiles the Tailwind stylesheet into public/styles.css. Never runs on the server at runtime.",
+  "devDependencies": {
+    "tailwindcss": "^3"
+  },
+  "scripts": {
+    "build": "tailwindcss -i ./input.css -o ../public/styles.css --minify"
+  }
+}

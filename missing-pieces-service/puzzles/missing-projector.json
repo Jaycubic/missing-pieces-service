@@ -1,0 +1,85 @@
+{
+  "id": "missing-projector",
+  "title": "The Missing Projector",
+  "context": "A department presentation starts in 30 minutes. The team arrives at the new meeting room, but the projector is missing.",
+  "clue_categories": ["location", "time", "person", "resource", "event"],
+  "players": [
+    {
+      "slot": 0,
+      "visible_cards": [
+        { "id": "a1", "text": "Projector booked for Room 204." },
+        { "id": "a2", "text": "Presentation starts at 4:00 PM." }
+      ],
+      "hidden_card": {
+        "id": "a3",
+        "text": "Room changed from 204 to 301.",
+        "category": "location",
+        "hints": ["This card is about a location.", "Something about where the meeting is happening changed."],
+        "guess_options": [
+          { "id": "a3-correct", "text": "Room changed from 204 to 301.", "correct": true },
+          { "id": "a3-wrong1", "text": "The meeting was moved to a different building.", "correct": false },
+          { "id": "a3-wrong2", "text": "The room number stayed the same, only the floor changed.", "correct": false }
+        ]
+      }
+    },
+    {
+      "slot": 1,
+      "visible_cards": [
+        { "id": "b1", "text": "Room 301 was approved for the presentation." },
+        { "id": "b2", "text": "The room change happened at 1:00 PM." }
+      ],
+      "hidden_card": {
+        "id": "b3",
+        "text": "Facilities only received the original equipment request.",
+        "category": "resource",
+        "hints": ["This card is about a resource.", "It concerns a request that Facilities received."],
+        "guess_options": [
+          { "id": "b3-correct", "text": "Facilities only received the original equipment request.", "correct": true },
+          { "id": "b3-wrong1", "text": "Facilities never received any equipment request.", "correct": false },
+          { "id": "b3-wrong2", "text": "Facilities received two conflicting equipment requests.", "correct": false }
+        ]
+      }
+    },
+    {
+      "slot": 2,
+      "visible_cards": [
+        { "id": "c1", "text": "Facilities received an email about equipment." },
+        { "id": "c2", "text": "A projector was confirmed available that afternoon." }
+      ],
+      "hidden_card": {
+        "id": "c3",
+        "text": "Updated room information was not included in the equipment request.",
+        "category": "event",
+        "hints": ["This card is about an event.", "Something was missing from a request that was sent."],
+        "guess_options": [
+          { "id": "c3-correct", "text": "Updated room information was not included in the equipment request.", "correct": true },
+          { "id": "c3-wrong1", "text": "The equipment request was sent to the wrong department.", "correct": false },
+          { "id": "c3-wrong2", "text": "The equipment request was cancelled by mistake.", "correct": false }
+        ]
+      }
+    },
+    {
+      "slot": 3,
+      "visible_cards": [
+        { "id": "d1", "text": "Another meeting occupied Room 204 that afternoon." },
+        { "id": "d2", "text": "Facilities had limited setup time before 4:00 PM." }
+      ],
+      "hidden_card": {
+        "id": "d3",
+        "text": "The projector remained assigned to Room 204.",
+        "category": "resource",
+        "hints": ["This card is about a resource.", "It concerns where a piece of equipment ended up staying."],
+        "guess_options": [
+          { "id": "d3-correct", "text": "The projector remained assigned to Room 204.", "correct": true },
+          { "id": "d3-wrong1", "text": "The projector was moved to a storage room.", "correct": false },
+          { "id": "d3-wrong2", "text": "The projector was booked by another department.", "correct": false }
+        ]
+      }
+    }
+  ],
+  "connections": [
+    ["a3", "b1"],
+    ["b3", "c3"],
+    ["c3", "d3"]
+  ]
+}

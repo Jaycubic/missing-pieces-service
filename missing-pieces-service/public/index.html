@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>The Missing Pieces</title>
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="min-h-screen">
+
+  <div class="max-w-2xl mx-auto px-5 py-8">
+    <header class="text-center mb-8">
+      <h1 class="font-display text-3xl md:text-4xl font-semibold text-slate-50">The Missing Pieces</h1>
+      <p class="text-slate-400 text-sm mt-1">A cooperative puzzle for four</p>
+    </header>
+
+    <!-- SETUP -->
+    <section id="screen-setup" class="screen">
+      <div class="bg-surface border border-border rounded-2xl p-6">
+        <div class="mb-4">
+          <label class="block text-xs text-slate-400 mb-1" for="name-input">Your name</label>
+          <input id="name-input" type="text" maxlength="18" placeholder="e.g. Arjun"
+                 class="w-full px-3 py-3 rounded-xl bg-ink border border-border text-slate-100" />
+        </div>
+        <button id="create-room-btn" class="w-full py-3 rounded-xl bg-pillar-empathy text-ink font-semibold mb-4">
+          Start a new session
+        </button>
+        <div class="text-center text-xs text-slate-500 mb-4">— or —</div>
+        <div class="mb-3">
+          <label class="block text-xs text-slate-400 mb-1" for="join-code-input">Join with a code</label>
+          <input id="join-code-input" type="text" maxlength="6" placeholder="e.g. AB3XZ9"
+                 class="w-full px-3 py-3 rounded-xl bg-ink border border-border text-slate-100 uppercase" />
+        </div>
+        <button id="join-room-btn" class="w-full py-3 rounded-xl bg-pillar-regulation text-ink font-semibold">
+          Join session
+        </button>
+      </div>
+    </section>
+
+    <!-- LOBBY -->
+    <section id="screen-lobby" class="screen hidden">
+      <div class="bg-surface border border-border rounded-2xl p-6 text-center">
+        <p class="text-slate-400 text-sm mb-1">Room code</p>
+        <p id="lobby-code" class="font-display text-3xl tracking-widest text-pillar-empathy mb-4">——</p>
+        <p id="lobby-status" class="text-slate-300 mb-2">Waiting for everyone to join…</p>
+        <p id="lobby-count" class="text-slate-500 text-sm">0 / 4 joined</p>
+      </div>
+    </section>
+
+    <!-- DISCOVER -->
+    <section id="screen-discover" class="screen hidden">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs uppercase tracking-wide text-pillar-awareness font-semibold">Discover</span>
+        <span id="phase-timer" class="text-slate-400 text-sm font-mono">2:00</span>
+      </div>
+
+      <div class="bg-surface border border-border rounded-2xl p-5 mb-5">
+        <p id="puzzle-title" class="font-display text-lg text-slate-100 mb-1"></p>
+        <p id="puzzle-context" class="text-slate-400 text-sm"></p>
+      </div>
+
+      <div class="bg-surface border border-border rounded-2xl p-5 mb-4">
+        <p class="text-sm font-semibold text-slate-300 mb-3">Your visible cards</p>
+        <div id="my-visible-cards" class="space-y-2"></div>
+      </div>
+
+      <div class="bg-surface border-2 border-dashed border-pillar-motivation/50 rounded-2xl p-5 mb-4">
+        <p class="text-sm font-semibold text-pillar-motivation mb-1">Your hidden card</p>
+        <p id="my-hidden-status" class="text-slate-400 text-sm mb-3">Nobody else has told you what this says yet.</p>
+        <div id="my-hints" class="space-y-1 mb-3"></div>
+        <div id="my-guess-options" class="space-y-2 mb-2"></div>
+        <p id="my-hidden-solved" class="hidden text-pillar-empathy text-sm font-semibold">Solved!</p>
+      </div>
+
+      <div class="bg-surface border border-border rounded-2xl p-5">
+        <p class="text-sm font-semibold text-slate-300 mb-3">Ask a teammate for a clue about your hidden card</p>
+        <div id="ask-clue-targets" class="grid grid-cols-2 gap-2 mb-3"></div>
+        <p class="text-xs text-slate-500">Each ask costs one token. Tokens left: <span id="tokens-remaining">3</span></p>
+      </div>
+
+      <div class="mt-5">
+        <p class="text-xs font-semibold text-slate-400 mb-2">Everyone else's cards (visible to you, not to them)</p>
+        <div id="others-cards" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- CONNECT -->
+    <section id="screen-connect" class="screen hidden">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs uppercase tracking-wide text-pillar-social font-semibold">Connect</span>
+        <span id="connect-timer" class="text-slate-400 text-sm font-mono">2:00</span>
+      </div>
+
+      <div class="bg-surface border border-border rounded-2xl p-5 mb-4">
+        <p class="text-sm text-slate-300 mb-1">
+          Connections found: <span id="connections-progress" class="text-pillar-empathy font-semibold">0 / 3</span>
+        </p>
+        <p class="text-xs text-slate-500">Pick two cards that seem meaningfully linked.</p>
+      </div>
+
+      <div class="bg-surface border border-border rounded-2xl p-5">
+        <p class="text-sm font-semibold text-slate-300 mb-3">All cards on the table</p>
+        <div id="connect-card-grid" class="grid grid-cols-2 gap-2 mb-4"></div>
+        <button id="propose-connection-btn" disabled
+                class="w-full py-3 rounded-xl bg-pillar-social text-ink font-semibold disabled:opacity-40">
+          Propose connection
+        </button>
+      </div>
+
+      <div class="mt-4">
+        <p class="text-xs font-semibold text-slate-400 mb-2">Found so far</p>
+        <div id="found-connections" class="space-y-1 text-sm text-slate-300"></div>
+      </div>
+    </section>
+
+    <!-- FINISHED -->
+    <section id="screen-finished" class="screen hidden text-center">
+      <div class="bg-surface border border-border rounded-2xl p-8">
+        <p class="text-4xl mb-3">🧩</p>
+        <p class="font-display text-2xl text-slate-100 mb-2">Session complete</p>
+        <p id="finished-summary" class="text-slate-400"></p>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 bg-pillar-regulation text-ink px-4 py-3 rounded-xl text-sm font-semibold opacity-0 pointer-events-none transition-opacity"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  var ws = null;
+  var currentRoomCode = null;
+  var mySlot = null;
+  var latestState = null;
+
+  function fallbackUuid(){
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c){
+      var r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+  function getDeviceToken(){
+    var t = localStorage.getItem("mp_device_token");
+    if(!t){
+      t = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : fallbackUuid();
+      localStorage.setItem("mp_device_token", t);
+    }
+    return t;
+  }
+
+  function setScreen(name){
+    ["setup","lobby","discover","connect","finished"].forEach(function(s){
+      document.getElementById("screen-" + s).classList.toggle("hidden", s !== name);
+    });
+  }
+
+  var toastTimer = null;
+  function showToast(msg){
+    var el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.remove("opacity-0");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.add("opacity-0"); }, 2400);
+  }
+
+  function send(action){
+    if(ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(action));
+  }
+
+  async function createRoom(){
+    try{
+      var res = await fetch("/api/rooms", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({})
+      });
+      if(!res.ok) throw new Error("failed");
+      var data = await res.json();
+      await joinRoom(data.code);
+    }catch(e){ showToast("Could not reach the server."); }
+  }
+
+  async function joinRoom(codeRaw){
+    var code = (codeRaw || "").trim().toUpperCase();
+    if(!code){ showToast("Enter a room code first."); return; }
+    var name = document.getElementById("name-input").value.trim() || "Player";
+
+    try{
+      var res = await fetch("/api/rooms/" + code + "/join", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_token: getDeviceToken(), name: name })
+      });
+      if(!res.ok){
+        var err = await res.json().catch(function(){ return { error: "Could not join." }; });
+        showToast(err.error || "Could not join.");
+        return;
+      }
+      var data = await res.json();
+      mySlot = data.slot;
+      currentRoomCode = code;
+      connectWs(code);
+      document.getElementById("lobby-code").textContent = code;
+      setScreen("lobby");
+    }catch(e){ showToast("Could not reach the server."); }
+  }
+
+  function connectWs(code){
+    if(ws){ try{ ws.close(); }catch(e){} }
+    var proto = location.protocol === "https:" ? "wss:" : "ws:";
+    ws = new WebSocket(proto + "//" + location.host + "/ws/" + code + "?device_token=" + encodeURIComponent(getDeviceToken()));
+    ws.onmessage = function(evt){
+      try{
+        var msg = JSON.parse(evt.data);
+        if(msg.type === "state"){ latestState = msg; render(); }
+      }catch(e){}
+    };
+    ws.onclose = function(){
+      setTimeout(function(){ if(currentRoomCode === code) connectWs(code); }, 3000);
+    };
+  }
+
+  function fmtClock(iso){
+    if(!iso) return "--:--";
+    var ms = new Date(iso).getTime() - Date.now();
+    var s = Math.max(0, Math.round(ms/1000));
+    var m = Math.floor(s/60); var r = s%60;
+    return m + ":" + (r < 10 ? "0" : "") + r;
+  }
+
+  function render(){
+    if(!latestState) return;
+    var phase = latestState.phase;
+
+    if(phase === "lobby"){
+      setScreen("lobby");
+      document.getElementById("lobby-count").textContent = (latestState.others.length + 1) + " / 4 joined";
+      return;
+    }
+    if(phase === "discover"){ setScreen("discover"); renderDiscover(); return; }
+    if(phase === "connect"){ setScreen("connect"); renderConnect(); return; }
+    if(phase === "finished"){ setScreen("finished"); renderFinished(); return; }
+  }
+
+  function renderDiscover(){
+    var s = latestState;
+    document.getElementById("phase-timer").textContent = fmtClock(s.phase_ends_at);
+    document.getElementById("puzzle-title").textContent = s.puzzle_title;
+    document.getElementById("puzzle-context").textContent = s.puzzle_context;
+    document.getElementById("tokens-remaining").textContent = s.me.tokens_remaining;
+
+    var visibleEl = document.getElementById("my-visible-cards");
+    visibleEl.innerHTML = "";
+    s.me.visible_cards.forEach(function(c){
+      var d = document.createElement("div");
+      d.className = "px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200";
+      d.textContent = c.text;
+      visibleEl.appendChild(d);
+    });
+
+    var hintsEl = document.getElementById("my-hints");
+    hintsEl.innerHTML = "";
+    s.me.hidden_card.hints_received.forEach(function(h){
+      var d = document.createElement("div");
+      d.className = "text-sm text-pillar-motivation";
+      d.textContent = "\u2022 " + h;
+      hintsEl.appendChild(d);
+    });
+
+    var solvedBanner = document.getElementById("my-hidden-solved");
+    var guessEl = document.getElementById("my-guess-options");
+    if(s.me.hidden_card.solved){
+      solvedBanner.classList.remove("hidden");
+      guessEl.innerHTML = "";
+    } else {
+      solvedBanner.classList.add("hidden");
+      guessEl.innerHTML = "";
+      s.me.hidden_card.guess_options.forEach(function(opt){
+        var btn = document.createElement("button");
+        btn.className = "w-full text-left px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200 hover:border-pillar-motivation";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", function(){
+          send({ type: "guess_hidden_card", option_id: opt.id });
+        });
+        guessEl.appendChild(btn);
+      });
+    }
+
+    var targetsEl = document.getElementById("ask-clue-targets");
+    targetsEl.innerHTML = "";
+    s.others.forEach(function(o){
+      var btn = document.createElement("button");
+      btn.className = "px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200 hover:border-pillar-awareness";
+      btn.textContent = o.name;
+      btn.disabled = s.me.hidden_card.solved || s.me.tokens_remaining <= 0;
+      btn.addEventListener("click", function(){
+        send({ type: "ask_clue", target_slot: o.slot });
+      });
+      targetsEl.appendChild(btn);
+    });
+
+    var othersEl = document.getElementById("others-cards");
+    othersEl.innerHTML = "";
+    s.others.forEach(function(o){
+      var wrap = document.createElement("div");
+      wrap.className = "px-3 py-2 rounded-lg bg-surface border border-border";
+      var name = document.createElement("p");
+      name.className = "text-xs text-slate-500 mb-1";
+      name.textContent = o.name + (o.solved ? " — solved their own card" : "") + (o.connected ? "" : " (disconnected)");
+      var hidden = document.createElement("p");
+      hidden.className = "text-sm text-pillar-empathy";
+      hidden.textContent = o.hidden_card_text;
+      wrap.appendChild(name); wrap.appendChild(hidden);
+      othersEl.appendChild(wrap);
+    });
+  }
+
+  var selectedCards = [];
+
+  function allCardsForConnect(s){
+    var cards = s.me.visible_cards.map(function(c){ return { id: c.id, text: c.text, mine: true }; });
+    if(s.me.hidden_card.solved){
+      var hc = s.me.hidden_card;
+      // We know our own hidden card's text only once solved — reuse the
+      // matching guess option text as the display text.
+      var solvedText = hc.guess_options.length ? hc.guess_options[0].text : "(your hidden card)";
+      cards.push({ id: "__mine_hidden__", text: solvedText, mine: true });
+    }
+    s.others.forEach(function(o){
+      cards.push({ id: o.hidden_card_id, text: o.hidden_card_text, mine: false });
+    });
+    return cards;
+  }
+
+  function renderConnect(){
+    var s = latestState;
+    document.getElementById("connect-timer").textContent = fmtClock(s.phase_ends_at);
+    document.getElementById("connections-progress").textContent = s.connections_found.length + " / " + s.connections_total;
+
+    var grid = document.getElementById("connect-card-grid");
+    grid.innerHTML = "";
+    allCardsForConnect(s).forEach(function(c){
+      var btn = document.createElement("button");
+      var isSelected = selectedCards.indexOf(c.id) !== -1;
+      btn.className = "px-3 py-2 rounded-lg border text-left text-sm " +
+        (isSelected ? "bg-pillar-social/20 border-pillar-social text-slate-100" : "bg-ink border-border text-slate-300");
+      btn.textContent = c.text;
+      btn.addEventListener("click", function(){
+        var idx = selectedCards.indexOf(c.id);
+        if(idx !== -1){ selectedCards.splice(idx, 1); }
+        else if(selectedCards.length < 2){ selectedCards.push(c.id); }
+        renderConnect();
+      });
+      grid.appendChild(btn);
+    });
+
+    document.getElementById("propose-connection-btn").disabled = selectedCards.length !== 2;
+
+    var foundEl = document.getElementById("found-connections");
+    foundEl.innerHTML = "";
+    s.connections_found.forEach(function(fc){
+      var d = document.createElement("div");
+      d.textContent = "\u2022 " + fc.card_a + " \u2194 " + fc.card_b;
+      foundEl.appendChild(d);
+    });
+  }
+
+  function renderFinished(){
+    var s = latestState;
+    document.getElementById("finished-summary").textContent =
+      "Your team found " + s.connections_found.length + " of " + s.connections_total + " connections.";
+  }
+
+  document.getElementById("create-room-btn").addEventListener("click", createRoom);
+  document.getElementById("join-room-btn").addEventListener("click", function(){
+    joinRoom(document.getElementById("join-code-input").value);
+  });
+  document.getElementById("propose-connection-btn").addEventListener("click", function(){
+    if(selectedCards.length === 2){
+      send({ type: "propose_connection", card_a: selectedCards[0], card_b: selectedCards[1] });
+      selectedCards = [];
+    }
+  });
+
+  setScreen("setup");
+})();
+</script>
+</body>
+</html>
