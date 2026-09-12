@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark" />
-<title>The Missing Pieces</title>
-<link rel="stylesheet" href="/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>The Missing Pieces</title>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
+
 <body class="min-h-screen">
 
   <div class="max-w-2xl mx-auto px-5 py-8">
@@ -22,7 +24,7 @@
         <div class="mb-4">
           <label class="block text-xs text-slate-400 mb-1" for="name-input">Your name</label>
           <input id="name-input" type="text" maxlength="18" placeholder="e.g. Arjun"
-                 class="w-full px-3 py-3 rounded-xl bg-ink border border-border text-slate-100" />
+            class="w-full px-3 py-3 rounded-xl bg-ink border border-border text-slate-100" />
         </div>
         <button id="create-room-btn" class="w-full py-3 rounded-xl bg-pillar-empathy text-ink font-semibold mb-4">
           Start a new session
@@ -31,7 +33,7 @@
         <div class="mb-3">
           <label class="block text-xs text-slate-400 mb-1" for="join-code-input">Join with a code</label>
           <input id="join-code-input" type="text" maxlength="6" placeholder="e.g. AB3XZ9"
-                 class="w-full px-3 py-3 rounded-xl bg-ink border border-border text-slate-100 uppercase" />
+            class="w-full px-3 py-3 rounded-xl bg-ink border border-border text-slate-100 uppercase" />
         </div>
         <button id="join-room-btn" class="w-full py-3 rounded-xl bg-pillar-regulation text-ink font-semibold">
           Join session
@@ -77,7 +79,8 @@
       <div class="bg-surface border border-border rounded-2xl p-5">
         <p class="text-sm font-semibold text-slate-300 mb-3">Ask a teammate for a clue about your hidden card</p>
         <div id="ask-clue-targets" class="grid grid-cols-2 gap-2 mb-3"></div>
-        <p class="text-xs text-slate-500">Each ask costs one token. Tokens left: <span id="tokens-remaining">3</span></p>
+        <p class="text-xs text-slate-500">Each ask costs one token. Tokens left: <span id="tokens-remaining">3</span>
+        </p>
       </div>
 
       <div class="mt-5">
@@ -104,7 +107,7 @@
         <p class="text-sm font-semibold text-slate-300 mb-3">All cards on the table</p>
         <div id="connect-card-grid" class="grid grid-cols-2 gap-2 mb-4"></div>
         <button id="propose-connection-btn" disabled
-                class="w-full py-3 rounded-xl bg-pillar-social text-ink font-semibold disabled:opacity-40">
+          class="w-full py-3 rounded-xl bg-pillar-social text-ink font-semibold disabled:opacity-40">
           Propose connection
         </button>
       </div>
@@ -125,9 +128,12 @@
     </section>
   </div>
 
-  <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 bg-pillar-regulation text-ink px-4 py-3 rounded-xl text-sm font-semibold opacity-0 pointer-events-none transition-opacity"></div>
+  <div id="toast"
+    class="fixed left-1/2 bottom-6 -translate-x-1/2 bg-pillar-regulation text-ink px-4 py-3 rounded-xl text-sm font-semibold opacity-0 pointer-events-none transition-opacity">
+  </div>
 
-  <dialog id="howto-dialog" class="w-[calc(100%-2rem)] max-w-lg bg-surface border border-border rounded-2xl p-6 text-slate-200 backdrop:bg-black/70">
+  <dialog id="howto-dialog"
+    class="w-[calc(100%-2rem)] max-w-lg bg-surface border border-border rounded-2xl p-6 text-slate-200 backdrop:bg-black/70">
     <h2 class="font-display text-xl text-slate-50 mb-3">How to Play</h2>
     <p class="text-sm text-slate-300 mb-4">
       The Missing Pieces is a cooperative deduction game for four players. Together, you'll piece
@@ -151,404 +157,440 @@
 
     <h2 class="font-display text-lg text-slate-50 mb-2">Rule Book</h2>
     <div class="space-y-2 text-sm mb-4">
-      <p><span class="font-semibold text-pillar-empathy">Players —</span> <span class="text-slate-400">Four, each on their own device, in the same live session.</span></p>
-      <p><span class="font-semibold text-pillar-empathy">Goals —</span> <span class="text-slate-400">Piece together the full story: solve your own hidden clue, and find every meaningful connection.</span></p>
-      <p><span class="font-semibold text-pillar-empathy">Rules —</span> <span class="text-slate-400">Asking for a hint costs one of your three tokens. Guess your hidden clue any time. Once caught up, propose connections between any two clues.</span></p>
-      <p><span class="font-semibold text-pillar-empathy">Space —</span> <span class="text-slate-400">Everyone plays from their own device, in the same shared session.</span></p>
-      <p><span class="font-semibold text-pillar-empathy">Time —</span> <span class="text-slate-400">Two short timed rounds, a couple of minutes each.</span></p>
-      <p><span class="font-semibold text-pillar-empathy">Resources —</span> <span class="text-slate-400">Three hint tokens per player, and a fixed set of clue categories.</span></p>
-      <p><span class="font-semibold text-pillar-empathy">Conflict —</span> <span class="text-slate-400">Limited tokens mean choosing carefully who to ask and when, racing the clock as a team.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Players —</span> <span class="text-slate-400">Four, each on
+          their own device, in the same live session.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Goals —</span> <span class="text-slate-400">Piece together the
+          full story: solve your own hidden clue, and find every meaningful connection.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Rules —</span> <span class="text-slate-400">Asking for a hint
+          costs one of your three tokens. Guess your hidden clue any time. Once caught up, propose connections between
+          any two clues.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Space —</span> <span class="text-slate-400">Everyone plays from
+          their own device, in the same shared session.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Time —</span> <span class="text-slate-400">Two short timed
+          rounds, a couple of minutes each.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Resources —</span> <span class="text-slate-400">Three hint
+          tokens per player, and a fixed set of clue categories.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Conflict —</span> <span class="text-slate-400">Limited tokens
+          mean choosing carefully who to ask and when, racing the clock as a team.</span></p>
     </div>
 
     <button id="howto-close" class="w-full py-2 rounded-xl border border-border text-slate-300">Close</button>
   </dialog>
 
-<script>
-(function(){
-  "use strict";
+  <script>
+    (function () {
+      "use strict";
 
-  var ws = null;
-  var currentRoomCode = null;
-  var mySlot = null;
-  var latestState = null;
+      var ws = null;
+      var currentRoomCode = null;
+      var mySlot = null;
+      var latestState = null;
 
-  function fallbackUuid(){
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c){
-      var r = Math.random()*16|0, v = c === "x" ? r : (r&0x3|0x8);
-      return v.toString(16);
-    });
-  }
-  function getDeviceToken(){
-    // Testing aid: ?as=p1 forces a distinct identity for this tab, bypassing
-    // localStorage entirely — needed because every tab of the same browser
-    // otherwise shares one localStorage, so 4 tabs would collide into one
-    // player. Never used by real players; only relevant for solo testing.
-    var params = new URLSearchParams(location.search);
-    var forced = params.get("as");
-    if(forced) return "test-" + forced;
-
-    var t = localStorage.getItem("mp_device_token");
-    if(!t){
-      t = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : fallbackUuid();
-      localStorage.setItem("mp_device_token", t);
-    }
-    return t;
-  }
-
-  function setScreen(name){
-    ["setup","lobby","discover","connect","finished"].forEach(function(s){
-      document.getElementById("screen-" + s).classList.toggle("hidden", s !== name);
-    });
-  }
-
-  var toastTimer = null;
-  function showToast(msg){
-    var el = document.getElementById("toast");
-    el.textContent = msg;
-    el.classList.remove("opacity-0");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ el.classList.add("opacity-0"); }, 2400);
-  }
-
-  function send(action){
-    if(ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(action));
-  }
-
-  async function createRoom(){
-    try{
-      var res = await fetch("/api/rooms", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({})
-      });
-      if(!res.ok) throw new Error("failed");
-      var data = await res.json();
-      await joinRoom(data.code);
-    }catch(e){ showToast("Could not reach the server."); }
-  }
-
-  async function joinRoom(codeRaw){
-    var code = (codeRaw || "").trim().toUpperCase();
-    if(!code){ showToast("Enter a room code first."); return; }
-    var name = document.getElementById("name-input").value.trim() || "Player";
-
-    try{
-      var res = await fetch("/api/rooms/" + code + "/join", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ device_token: getDeviceToken(), name: name })
-      });
-      if(!res.ok){
-        var err = await res.json().catch(function(){ return { error: "Could not join." }; });
-        showToast(err.error || "Could not join.");
-        return;
-      }
-      var data = await res.json();
-      mySlot = data.slot;
-      currentRoomCode = code;
-      connectWs(code);
-      document.getElementById("lobby-code").textContent = code;
-      setScreen("lobby");
-    }catch(e){ showToast("Could not reach the server."); }
-  }
-
-  function connectWs(code){
-    if(ws){ try{ ws.close(); }catch(e){} }
-    var proto = location.protocol === "https:" ? "wss:" : "ws:";
-    ws = new WebSocket(proto + "//" + location.host + "/ws/" + code + "?device_token=" + encodeURIComponent(getDeviceToken()));
-    ws.onmessage = function(evt){
-      try{
-        var msg = JSON.parse(evt.data);
-        if(msg.type === "state"){
-          latestState = msg;
-          window.__mpLatestState = msg; // exposed only for the optional ?debug=1 test harness
-          render();
-        }
-      }catch(e){}
-    };
-    ws.onclose = function(){
-      setTimeout(function(){ if(currentRoomCode === code) connectWs(code); }, 3000);
-    };
-  }
-
-  function fmtClock(iso){
-    if(!iso) return "--:--";
-    var ms = new Date(iso).getTime() - Date.now();
-    var s = Math.max(0, Math.round(ms/1000));
-    var m = Math.floor(s/60); var r = s%60;
-    return m + ":" + (r < 10 ? "0" : "") + r;
-  }
-
-  function render(){
-    if(!latestState) return;
-    var phase = latestState.phase;
-
-    if(phase === "lobby"){
-      setScreen("lobby");
-      document.getElementById("lobby-count").textContent = (latestState.others.length + 1) + " / 4 joined";
-      return;
-    }
-    if(phase === "discover"){ setScreen("discover"); renderDiscover(); return; }
-    if(phase === "connect"){ setScreen("connect"); renderConnect(); return; }
-    if(phase === "finished"){ setScreen("finished"); renderFinished(); return; }
-  }
-
-  function renderDiscover(){
-    var s = latestState;
-    document.getElementById("phase-timer").textContent = fmtClock(s.phase_ends_at);
-    document.getElementById("puzzle-title").textContent = s.puzzle_title;
-    document.getElementById("puzzle-context").textContent = s.puzzle_context;
-    document.getElementById("tokens-remaining").textContent = s.me.tokens_remaining;
-
-    var visibleEl = document.getElementById("my-visible-cards");
-    visibleEl.innerHTML = "";
-    s.me.visible_cards.forEach(function(c){
-      var d = document.createElement("div");
-      d.className = "px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200";
-      d.textContent = c.text;
-      visibleEl.appendChild(d);
-    });
-
-    var hintsEl = document.getElementById("my-hints");
-    hintsEl.innerHTML = "";
-    s.me.hidden_card.hints_received.forEach(function(h){
-      var d = document.createElement("div");
-      d.className = "text-sm text-pillar-motivation";
-      d.textContent = "\u2022 " + h;
-      hintsEl.appendChild(d);
-    });
-
-    var solvedBanner = document.getElementById("my-hidden-solved");
-    var guessEl = document.getElementById("my-guess-options");
-    if(s.me.hidden_card.solved){
-      solvedBanner.classList.remove("hidden");
-      guessEl.innerHTML = "";
-    } else {
-      solvedBanner.classList.add("hidden");
-      guessEl.innerHTML = "";
-      s.me.hidden_card.guess_options.forEach(function(opt){
-        var btn = document.createElement("button");
-        btn.className = "w-full text-left px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200 hover:border-pillar-motivation";
-        btn.textContent = opt.text;
-        btn.addEventListener("click", function(){
-          send({ type: "guess_hidden_card", option_id: opt.id });
+      function fallbackUuid() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+          var r = Math.random() * 16 | 0, v = c === "x" ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
         });
-        guessEl.appendChild(btn);
+      }
+      function getDeviceToken() {
+        // Testing aid: ?as=p1 forces a distinct identity for this tab, bypassing
+        // localStorage entirely — needed because every tab of the same browser
+        // otherwise shares one localStorage, so 4 tabs would collide into one
+        // player. Never used by real players; only relevant for solo testing.
+        var params = new URLSearchParams(location.search);
+        var forced = params.get("as");
+        if (forced) return "test-" + forced;
+
+        var t = localStorage.getItem("mp_device_token");
+        if (!t) {
+          t = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : fallbackUuid();
+          localStorage.setItem("mp_device_token", t);
+        }
+        return t;
+      }
+
+      function setScreen(name) {
+        ["setup", "lobby", "discover", "connect", "finished"].forEach(function (s) {
+          document.getElementById("screen-" + s).classList.toggle("hidden", s !== name);
+        });
+      }
+
+      var toastTimer = null;
+      function showToast(msg) {
+        var el = document.getElementById("toast");
+        el.textContent = msg;
+        el.classList.remove("opacity-0");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { el.classList.add("opacity-0"); }, 2400);
+      }
+
+      function send(action) {
+        if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(action));
+      }
+
+      async function createRoom() {
+        try {
+          var res = await fetch("/api/rooms", {
+            method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({})
+          });
+          if (!res.ok) throw new Error("failed");
+          var data = await res.json();
+          await joinRoom(data.code);
+        } catch (e) { showToast("Could not reach the server."); }
+      }
+
+      async function joinRoom(codeRaw) {
+        var code = (codeRaw || "").trim().toUpperCase();
+        if (!code) { showToast("Enter a room code first."); return; }
+        var name = document.getElementById("name-input").value.trim() || "Player";
+
+        try {
+          var res = await fetch("/api/rooms/" + code + "/join", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ device_token: getDeviceToken(), name: name })
+          });
+          if (!res.ok) {
+            var err = await res.json().catch(function () { return { error: "Could not join." }; });
+            showToast(err.error || "Could not join.");
+            return;
+          }
+          var data = await res.json();
+          mySlot = data.slot;
+          currentRoomCode = code;
+          connectWs(code);
+          document.getElementById("lobby-code").textContent = code;
+          setScreen("lobby");
+        } catch (e) { showToast("Could not reach the server."); }
+      }
+
+      function connectWs(code) {
+        if (ws) { try { ws.close(); } catch (e) { } }
+        var proto = location.protocol === "https:" ? "wss:" : "ws:";
+        ws = new WebSocket(proto + "//" + location.host + "/ws/" + code + "?device_token=" + encodeURIComponent(getDeviceToken()));
+        ws.onmessage = function (evt) {
+          try {
+            var msg = JSON.parse(evt.data);
+            if (msg.type === "state") {
+              latestState = msg;
+              window.__mpLatestState = msg; // exposed only for the optional ?debug=1 test harness
+              render();
+            }
+          } catch (e) { }
+        };
+        ws.onclose = function () {
+          setTimeout(function () { if (currentRoomCode === code) connectWs(code); }, 3000);
+        };
+      }
+
+      function fmtClock(iso) {
+        if (!iso) return "--:--";
+        var ms = new Date(iso).getTime() - Date.now();
+        var s = Math.max(0, Math.round(ms / 1000));
+        var m = Math.floor(s / 60); var r = s % 60;
+        return m + ":" + (r < 10 ? "0" : "") + r;
+      }
+
+      function render() {
+        if (!latestState) return;
+        var phase = latestState.phase;
+
+        if (phase === "lobby") {
+          setScreen("lobby");
+          document.getElementById("lobby-count").textContent = (latestState.others.length + 1) + " / 4 joined";
+          return;
+        }
+        if (phase === "discover") { setScreen("discover"); renderDiscover(); return; }
+        if (phase === "connect") { setScreen("connect"); renderConnect(); return; }
+        if (phase === "finished") { setScreen("finished"); renderFinished(); return; }
+      }
+
+      function renderDiscover() {
+        var s = latestState;
+        document.getElementById("phase-timer").textContent = fmtClock(s.phase_ends_at);
+        document.getElementById("puzzle-title").textContent = s.puzzle_title;
+        document.getElementById("puzzle-context").textContent = s.puzzle_context;
+        document.getElementById("tokens-remaining").textContent = s.me.tokens_remaining;
+
+        var visibleEl = document.getElementById("my-visible-cards");
+        visibleEl.innerHTML = "";
+        s.me.visible_cards.forEach(function (c) {
+          var d = document.createElement("div");
+          d.className = "px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200";
+          d.textContent = c.text;
+          visibleEl.appendChild(d);
+        });
+
+        var hintsEl = document.getElementById("my-hints");
+        hintsEl.innerHTML = "";
+        s.me.hidden_card.hints_received.forEach(function (h) {
+          var d = document.createElement("div");
+          d.className = "text-sm text-pillar-motivation";
+          d.textContent = "\u2022 " + h;
+          hintsEl.appendChild(d);
+        });
+
+        var solvedBanner = document.getElementById("my-hidden-solved");
+        var guessEl = document.getElementById("my-guess-options");
+        if (s.me.hidden_card.solved) {
+          solvedBanner.classList.remove("hidden");
+          guessEl.innerHTML = "";
+        } else {
+          solvedBanner.classList.add("hidden");
+          guessEl.innerHTML = "";
+          s.me.hidden_card.guess_options.forEach(function (opt) {
+            var btn = document.createElement("button");
+            btn.className = "w-full text-left px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200 hover:border-pillar-motivation";
+            btn.textContent = opt.text;
+            btn.addEventListener("click", function () {
+              send({ type: "guess_hidden_card", option_id: opt.id });
+            });
+            guessEl.appendChild(btn);
+          });
+        }
+
+        var targetsEl = document.getElementById("ask-clue-targets");
+        targetsEl.innerHTML = "";
+        s.others.forEach(function (o) {
+          var btn = document.createElement("button");
+          btn.className = "px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200 hover:border-pillar-awareness";
+          btn.textContent = o.name;
+          btn.disabled = s.me.hidden_card.solved || s.me.tokens_remaining <= 0;
+          btn.addEventListener("click", function () {
+            send({ type: "ask_clue", target_slot: o.slot });
+          });
+          targetsEl.appendChild(btn);
+        });
+
+        var othersEl = document.getElementById("others-cards");
+        othersEl.innerHTML = "";
+        s.others.forEach(function (o) {
+          var wrap = document.createElement("div");
+          wrap.className = "px-3 py-2 rounded-lg bg-surface border border-border";
+          var name = document.createElement("p");
+          name.className = "text-xs text-slate-500 mb-1";
+          name.textContent = o.name + (o.solved ? " — solved their own card" : "") + (o.connected ? "" : " (disconnected)");
+          var hidden = document.createElement("p");
+          hidden.className = "text-sm text-pillar-empathy";
+          hidden.textContent = o.hidden_card_text;
+          wrap.appendChild(name); wrap.appendChild(hidden);
+          othersEl.appendChild(wrap);
+        });
+      }
+
+      var selectedCards = [];
+
+      function allCardsForConnect(s) {
+        var cards = s.me.visible_cards.map(function (c) { return { id: c.id, text: c.text, mine: true }; });
+        if (s.me.hidden_card.solved) {
+          var hc = s.me.hidden_card;
+          // We know our own hidden card's text only once solved — reuse the
+          // matching guess option text as the display text.
+          var solvedText = hc.guess_options.length ? hc.guess_options[0].text : "(your hidden card)";
+          cards.push({ id: "__mine_hidden__", text: solvedText, mine: true });
+        }
+        s.others.forEach(function (o) {
+          cards.push({ id: o.hidden_card_id, text: o.hidden_card_text, mine: false });
+        });
+        return cards;
+      }
+
+      function renderConnect() {
+        var s = latestState;
+        document.getElementById("connect-timer").textContent = fmtClock(s.phase_ends_at);
+        document.getElementById("connections-progress").textContent = s.connections_found.length + " / " + s.connections_total;
+
+        var grid = document.getElementById("connect-card-grid");
+        grid.innerHTML = "";
+        allCardsForConnect(s).forEach(function (c) {
+          var btn = document.createElement("button");
+          var isSelected = selectedCards.indexOf(c.id) !== -1;
+          btn.className = "px-3 py-2 rounded-lg border text-left text-sm " +
+            (isSelected ? "bg-pillar-social/20 border-pillar-social text-slate-100" : "bg-ink border-border text-slate-300");
+          btn.textContent = c.text;
+          btn.addEventListener("click", function () {
+            var idx = selectedCards.indexOf(c.id);
+            if (idx !== -1) { selectedCards.splice(idx, 1); }
+            else if (selectedCards.length < 2) { selectedCards.push(c.id); }
+            renderConnect();
+          });
+          grid.appendChild(btn);
+        });
+
+        document.getElementById("propose-connection-btn").disabled = selectedCards.length !== 2;
+
+        var foundEl = document.getElementById("found-connections");
+        foundEl.innerHTML = "";
+        s.connections_found.forEach(function (fc) {
+          var d = document.createElement("div");
+          d.textContent = "\u2022 " + fc.card_a + " \u2194 " + fc.card_b;
+          foundEl.appendChild(d);
+        });
+      }
+
+      function renderFinished() {
+        var s = latestState;
+        document.getElementById("finished-summary").textContent =
+          "Your team found " + s.connections_found.length + " of " + s.connections_total + " connections.";
+      }
+
+      document.getElementById("create-room-btn").addEventListener("click", createRoom);
+      document.getElementById("join-room-btn").addEventListener("click", function () {
+        joinRoom(document.getElementById("join-code-input").value);
       });
-    }
-
-    var targetsEl = document.getElementById("ask-clue-targets");
-    targetsEl.innerHTML = "";
-    s.others.forEach(function(o){
-      var btn = document.createElement("button");
-      btn.className = "px-3 py-2 rounded-lg bg-ink border border-border text-sm text-slate-200 hover:border-pillar-awareness";
-      btn.textContent = o.name;
-      btn.disabled = s.me.hidden_card.solved || s.me.tokens_remaining <= 0;
-      btn.addEventListener("click", function(){
-        send({ type: "ask_clue", target_slot: o.slot });
+      document.getElementById("propose-connection-btn").addEventListener("click", function () {
+        if (selectedCards.length === 2) {
+          send({ type: "propose_connection", card_a: selectedCards[0], card_b: selectedCards[1] });
+          selectedCards = [];
+        }
       });
-      targetsEl.appendChild(btn);
-    });
 
-    var othersEl = document.getElementById("others-cards");
-    othersEl.innerHTML = "";
-    s.others.forEach(function(o){
-      var wrap = document.createElement("div");
-      wrap.className = "px-3 py-2 rounded-lg bg-surface border border-border";
-      var name = document.createElement("p");
-      name.className = "text-xs text-slate-500 mb-1";
-      name.textContent = o.name + (o.solved ? " — solved their own card" : "") + (o.connected ? "" : " (disconnected)");
-      var hidden = document.createElement("p");
-      hidden.className = "text-sm text-pillar-empathy";
-      hidden.textContent = o.hidden_card_text;
-      wrap.appendChild(name); wrap.appendChild(hidden);
-      othersEl.appendChild(wrap);
-    });
-  }
-
-  var selectedCards = [];
-
-  function allCardsForConnect(s){
-    var cards = s.me.visible_cards.map(function(c){ return { id: c.id, text: c.text, mine: true }; });
-    if(s.me.hidden_card.solved){
-      var hc = s.me.hidden_card;
-      // We know our own hidden card's text only once solved — reuse the
-      // matching guess option text as the display text.
-      var solvedText = hc.guess_options.length ? hc.guess_options[0].text : "(your hidden card)";
-      cards.push({ id: "__mine_hidden__", text: solvedText, mine: true });
-    }
-    s.others.forEach(function(o){
-      cards.push({ id: o.hidden_card_id, text: o.hidden_card_text, mine: false });
-    });
-    return cards;
-  }
-
-  function renderConnect(){
-    var s = latestState;
-    document.getElementById("connect-timer").textContent = fmtClock(s.phase_ends_at);
-    document.getElementById("connections-progress").textContent = s.connections_found.length + " / " + s.connections_total;
-
-    var grid = document.getElementById("connect-card-grid");
-    grid.innerHTML = "";
-    allCardsForConnect(s).forEach(function(c){
-      var btn = document.createElement("button");
-      var isSelected = selectedCards.indexOf(c.id) !== -1;
-      btn.className = "px-3 py-2 rounded-lg border text-left text-sm " +
-        (isSelected ? "bg-pillar-social/20 border-pillar-social text-slate-100" : "bg-ink border-border text-slate-300");
-      btn.textContent = c.text;
-      btn.addEventListener("click", function(){
-        var idx = selectedCards.indexOf(c.id);
-        if(idx !== -1){ selectedCards.splice(idx, 1); }
-        else if(selectedCards.length < 2){ selectedCards.push(c.id); }
-        renderConnect();
+      document.getElementById("howto-open").addEventListener("click", function () {
+        document.getElementById("howto-dialog").showModal();
       });
-      grid.appendChild(btn);
-    });
+      document.getElementById("howto-close").addEventListener("click", function () {
+        document.getElementById("howto-dialog").close();
+      });
 
-    document.getElementById("propose-connection-btn").disabled = selectedCards.length !== 2;
+      setScreen("setup");
+    })();
+  </script>
 
-    var foundEl = document.getElementById("found-connections");
-    foundEl.innerHTML = "";
-    s.connections_found.forEach(function(fc){
-      var d = document.createElement("div");
-      d.textContent = "\u2022 " + fc.card_a + " \u2194 " + fc.card_b;
-      foundEl.appendChild(d);
-    });
-  }
-
-  function renderFinished(){
-    var s = latestState;
-    document.getElementById("finished-summary").textContent =
-      "Your team found " + s.connections_found.length + " of " + s.connections_total + " connections.";
-  }
-
-  document.getElementById("create-room-btn").addEventListener("click", createRoom);
-  document.getElementById("join-room-btn").addEventListener("click", function(){
-    joinRoom(document.getElementById("join-code-input").value);
-  });
-  document.getElementById("propose-connection-btn").addEventListener("click", function(){
-    if(selectedCards.length === 2){
-      send({ type: "propose_connection", card_a: selectedCards[0], card_b: selectedCards[1] });
-      selectedCards = [];
-    }
-  });
-
-  document.getElementById("howto-open").addEventListener("click", function(){
-    document.getElementById("howto-dialog").showModal();
-  });
-  document.getElementById("howto-close").addEventListener("click", function(){
-    document.getElementById("howto-dialog").close();
-  });
-
-  setScreen("setup");
-})();
-</script>
-
-<!--
+  <!--
   Solo test harness — never active unless the URL includes ?debug=1.
   Not part of the graded game; purely for testing 4 players from one person's
   browser. Uses html2canvas (DOM-to-image, no OS permission needed) for
   automatic screenshots, and getDisplayMedia (real screen capture, needs one
   manual click per tab) for optional video.
 -->
-<script>
-(function(){
-  "use strict";
-  var params = new URLSearchParams(location.search);
-  if(params.get("debug") !== "1") return;
+  <script>
+    (function () {
+      "use strict";
+      var params = new URLSearchParams(location.search);
+      if (params.get("debug") !== "1") return;
 
-  var html2canvasReady = new Promise(function(resolve){
-    var s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-    s.onload = function(){ resolve(window.html2canvas || null); };
-    s.onerror = function(){ resolve(null); };
-    document.head.appendChild(s);
-  });
+      var html2canvasReady = new Promise(function (resolve) {
+        var s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+        s.onload = function () { resolve(window.html2canvas || null); };
+        s.onerror = function () { resolve(null); };
+        document.head.appendChild(s);
+      });
 
-  var captureSeq = 0;
-  var autoCapture = false;
-  var mediaRecorder = null;
-  var recordedChunks = [];
-  var lastStateKey = null;
+      var captureSeq = 0;
+      var autoCapture = false;
+      var mediaRecorder = null;
+      var recordedChunks = [];
+      var lastStateKey = null;
 
-  function currentPlayerLabel(){
-    try{
-      if(window.__mpLatestState && window.__mpLatestState.me && window.__mpLatestState.me.name){
-        return window.__mpLatestState.me.name.replace(/[^a-z0-9]/gi, "_");
+      function currentPlayerLabel() {
+        try {
+          if (window.__mpLatestState && window.__mpLatestState.me && window.__mpLatestState.me.name) {
+            return window.__mpLatestState.me.name.replace(/[^a-z0-9]/gi, "_");
+          }
+        } catch (e) { /* fall through to URL-based label */ }
+        return params.get("as") || "unknown";
       }
-    }catch(e){ /* fall through to URL-based label */ }
-    return params.get("as") || "unknown";
-  }
 
-  function downloadBlob(blob, filename){
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click();
-    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-  }
+      function downloadBlob(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+      }
 
-  async function captureScreenshot(){
-    var h2c = await html2canvasReady;
-    if(!h2c){ console.warn("html2canvas failed to load — check internet access"); return; }
-    var canvas = await h2c(document.body, { backgroundColor: "#14201F" });
-    canvas.toBlob(function(blob){
-      if(!blob) return;
-      captureSeq++;
-      var ts = new Date().toISOString().replace(/[:.]/g, "-");
-      downloadBlob(blob, "capture_" + currentPlayerLabel() + "_" + String(captureSeq).padStart(3, "0") + "_" + ts + ".png");
-    }, "image/png");
-  }
+      async function captureScreenshot() {
+        var h2c = await html2canvasReady;
+        if (!h2c) { console.warn("html2canvas failed to load — check internet access"); return; }
+        var canvas = await h2c(document.body, { backgroundColor: "#14201F" });
+        canvas.toBlob(function (blob) {
+          if (!blob) return;
+          captureSeq++;
+          var ts = new Date().toISOString().replace(/[:.]/g, "-");
+          downloadBlob(blob, "capture_" + currentPlayerLabel() + "_" + String(captureSeq).padStart(3, "0") + "_" + ts + ".png");
+        }, "image/png");
+      }
 
-  async function startRecording(){
-    try{
-      var stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-      recordedChunks = [];
-      mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
-      mediaRecorder.ondataavailable = function(e){ if(e.data.size > 0) recordedChunks.push(e.data); };
-      mediaRecorder.onstop = function(){
-        var blob = new Blob(recordedChunks, { type: "video/webm" });
-        downloadBlob(blob, "recording_" + currentPlayerLabel() + ".webm");
-        stream.getTracks().forEach(function(t){ t.stop(); });
-      };
-      mediaRecorder.start();
-      document.getElementById("mp-debug-record-btn").textContent = "\u23f9 Stop recording";
-    }catch(e){
-      alert("Screen recording permission was not granted for this tab.");
-    }
-  }
-  function stopRecording(){
-    if(mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-    document.getElementById("mp-debug-record-btn").textContent = "\ud83c\udfa5 Start recording";
-  }
+      function displayMediaSupported() {
+        return !!(navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === "function");
+      }
 
-  var panel = document.createElement("div");
-  panel.style.cssText = "position:fixed;bottom:12px;right:12px;background:#1B2B2A;border:1px solid #2C4443;" +
-    "border-radius:12px;padding:10px;font:12px sans-serif;color:#e2e8f0;z-index:9999;width:210px;";
-  panel.innerHTML =
-    '<div style="font-weight:600;margin-bottom:6px;">Test harness (debug=1)</div>' +
-    '<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">' +
-      '<input type="checkbox" id="mp-debug-auto"> Auto-screenshot on update' +
-    '</label>' +
-    '<button id="mp-debug-shot-btn" style="width:100%;margin-bottom:6px;padding:6px;border-radius:8px;background:#3CE0A0;color:#14201F;border:none;">Screenshot now</button>' +
-    '<button id="mp-debug-record-btn" style="width:100%;padding:6px;border-radius:8px;background:#E0623C;color:#14201F;border:none;">Start recording</button>';
-  document.body.appendChild(panel);
+      async function startRecording() {
+        try {
+          var stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+          recordedChunks = [];
+          mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+          mediaRecorder.ondataavailable = function (e) { if (e.data.size > 0) recordedChunks.push(e.data); };
+          mediaRecorder.onstop = function () {
+            var blob = new Blob(recordedChunks, { type: "video/webm" });
+            downloadBlob(blob, "recording_" + currentPlayerLabel() + ".webm");
+            stream.getTracks().forEach(function (t) { t.stop(); });
+          };
+          mediaRecorder.start();
+          document.getElementById("mp-debug-record-btn").textContent = "\u23f9 Stop recording";
+        } catch (e) {
+          // Report what actually happened instead of guessing. A user genuinely
+          // dismissing the share picker throws NotAllowedError; anything else
+          // here usually means the API call itself failed for another reason.
+          if (e && e.name === "NotAllowedError") {
+            alert("You dismissed the share picker. Click Start recording again and choose a tab or window to share.");
+          } else {
+            alert("Recording failed to start (" + (e && e.name ? e.name : "unknown error") + "): " +
+              (e && e.message ? e.message : e) +
+              "\n\nIf this is happening on every attempt with no picker appearing at all, this browser " +
+              "most likely is not treating this page as a secure context. See the note in the test panel.");
+          }
+        }
+      }
+      function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+        document.getElementById("mp-debug-record-btn").textContent = "\ud83c\udfa5 Start recording";
+      }
 
-  document.getElementById("mp-debug-auto").addEventListener("change", function(e){ autoCapture = e.target.checked; });
-  document.getElementById("mp-debug-shot-btn").addEventListener("click", captureScreenshot);
-  document.getElementById("mp-debug-record-btn").addEventListener("click", function(){
-    if(mediaRecorder && mediaRecorder.state === "recording") stopRecording();
-    else startRecording();
-  });
+      var panel = document.createElement("div");
+      panel.style.cssText = "position:fixed;bottom:12px;right:12px;background:#1B2B2A;border:1px solid #2C4443;" +
+        "border-radius:12px;padding:10px;font:12px sans-serif;color:#e2e8f0;z-index:9999;width:230px;";
 
-  // Change-detection on a short poll, rather than a fixed-interval capture,
-  // so a screenshot is only taken when something actually happened.
-  setInterval(function(){
-    if(!autoCapture || !window.__mpLatestState) return;
-    var key = JSON.stringify(window.__mpLatestState);
-    if(key !== lastStateKey){
-      lastStateKey = key;
-      captureScreenshot();
-    }
-  }, 800);
-})();
-</script>
+      var recordSupported = displayMediaSupported();
+      var recordBtnHtml = recordSupported
+        ? '<button id="mp-debug-record-btn" style="width:100%;padding:6px;border-radius:8px;background:#E0623C;color:#14201F;border:none;">Start recording</button>'
+        : '<button id="mp-debug-record-btn" disabled style="width:100%;padding:6px;border-radius:8px;background:#3f3f3f;color:#8a8a8a;border:none;">Recording unavailable</button>' +
+        '<p style="font-size:10px;color:#9FC2C0;margin-top:6px;line-height:1.4;">' +
+        'This page is not a secure context, so Chrome blocks screen recording here. ' +
+        'One-time fix: open <code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>, ' +
+        'add this page\u2019s URL, enable the flag, and relaunch Chrome. Screenshots below still work fine either way.' +
+        '</p>';
+
+      panel.innerHTML =
+        '<div style="font-weight:600;margin-bottom:6px;">Test harness (debug=1)</div>' +
+        '<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">' +
+        '<input type="checkbox" id="mp-debug-auto"> Auto-screenshot on update' +
+        '</label>' +
+        '<button id="mp-debug-shot-btn" style="width:100%;margin-bottom:6px;padding:6px;border-radius:8px;background:#3CE0A0;color:#14201F;border:none;">Screenshot now</button>' +
+        recordBtnHtml;
+      document.body.appendChild(panel);
+
+      document.getElementById("mp-debug-auto").addEventListener("change", function (e) { autoCapture = e.target.checked; });
+      document.getElementById("mp-debug-shot-btn").addEventListener("click", captureScreenshot);
+      if (recordSupported) {
+        document.getElementById("mp-debug-record-btn").addEventListener("click", function () {
+          if (mediaRecorder && mediaRecorder.state === "recording") stopRecording();
+          else startRecording();
+        });
+      }
+
+      // Change-detection on a short poll, rather than a fixed-interval capture,
+      // so a screenshot is only taken when something actually happened.
+      setInterval(function () {
+        if (!autoCapture || !window.__mpLatestState) return;
+        var key = JSON.stringify(window.__mpLatestState);
+        if (key !== lastStateKey) {
+          lastStateKey = key;
+          captureScreenshot();
+        }
+      }, 800);
+    })();
+  </script>
 </body>
+
 </html>
