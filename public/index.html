@@ -13,6 +13,7 @@
     <header class="text-center mb-8">
       <h1 class="font-display text-3xl md:text-4xl font-semibold text-slate-50">The Missing Pieces</h1>
       <p class="text-slate-400 text-sm mt-1">A cooperative puzzle for four</p>
+      <button id="howto-open" class="text-xs text-pillar-empathy underline mt-2">How to play</button>
     </header>
 
     <!-- SETUP -->
@@ -126,6 +127,42 @@
 
   <div id="toast" class="fixed left-1/2 bottom-6 -translate-x-1/2 bg-pillar-regulation text-ink px-4 py-3 rounded-xl text-sm font-semibold opacity-0 pointer-events-none transition-opacity"></div>
 
+  <dialog id="howto-dialog" class="w-[calc(100%-2rem)] max-w-lg bg-surface border border-border rounded-2xl p-6 text-slate-200 backdrop:bg-black/70">
+    <h2 class="font-display text-xl text-slate-50 mb-3">How to Play</h2>
+    <p class="text-sm text-slate-300 mb-4">
+      The Missing Pieces is a cooperative deduction game for four players. Together, you'll piece
+      together the story behind a small mixed-up workplace mystery — some information is visible
+      only to you, some only to your teammates, and one piece of your own story is hidden even
+      from yourself.
+    </p>
+
+    <h3 class="text-sm font-semibold text-pillar-awareness mb-1">Discover</h3>
+    <p class="text-sm text-slate-400 mb-3">
+      Each of you starts with two visible clues and one hidden one. You can't see your own hidden
+      clue, but everyone else can. Ask a teammate for a hint, or take your best guess whenever
+      you feel ready.
+    </p>
+
+    <h3 class="text-sm font-semibold text-pillar-social mb-1">Connect</h3>
+    <p class="text-sm text-slate-400 mb-4">
+      Once everyone's caught up, work together to spot which clues on the table are meaningfully
+      linked across the group.
+    </p>
+
+    <h2 class="font-display text-lg text-slate-50 mb-2">Rule Book</h2>
+    <div class="space-y-2 text-sm mb-4">
+      <p><span class="font-semibold text-pillar-empathy">Players —</span> <span class="text-slate-400">Four, each on their own device, in the same live session.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Goals —</span> <span class="text-slate-400">Piece together the full story: solve your own hidden clue, and find every meaningful connection.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Rules —</span> <span class="text-slate-400">Asking for a hint costs one of your three tokens. Guess your hidden clue any time. Once caught up, propose connections between any two clues.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Space —</span> <span class="text-slate-400">Everyone plays from their own device, in the same shared session.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Time —</span> <span class="text-slate-400">Two short timed rounds, a couple of minutes each.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Resources —</span> <span class="text-slate-400">Three hint tokens per player, and a fixed set of clue categories.</span></p>
+      <p><span class="font-semibold text-pillar-empathy">Conflict —</span> <span class="text-slate-400">Limited tokens mean choosing carefully who to ask and when, racing the clock as a team.</span></p>
+    </div>
+
+    <button id="howto-close" class="w-full py-2 rounded-xl border border-border text-slate-300">Close</button>
+  </dialog>
+
 <script>
 (function(){
   "use strict";
@@ -142,6 +179,14 @@
     });
   }
   function getDeviceToken(){
+    // Testing aid: ?as=p1 forces a distinct identity for this tab, bypassing
+    // localStorage entirely — needed because every tab of the same browser
+    // otherwise shares one localStorage, so 4 tabs would collide into one
+    // player. Never used by real players; only relevant for solo testing.
+    var params = new URLSearchParams(location.search);
+    var forced = params.get("as");
+    if(forced) return "test-" + forced;
+
     var t = localStorage.getItem("mp_device_token");
     if(!t){
       t = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : fallbackUuid();
@@ -211,7 +256,11 @@
     ws.onmessage = function(evt){
       try{
         var msg = JSON.parse(evt.data);
-        if(msg.type === "state"){ latestState = msg; render(); }
+        if(msg.type === "state"){
+          latestState = msg;
+          window.__mpLatestState = msg; // exposed only for the optional ?debug=1 test harness
+          render();
+        }
       }catch(e){}
     };
     ws.onclose = function(){
@@ -381,7 +430,124 @@
     }
   });
 
+  document.getElementById("howto-open").addEventListener("click", function(){
+    document.getElementById("howto-dialog").showModal();
+  });
+  document.getElementById("howto-close").addEventListener("click", function(){
+    document.getElementById("howto-dialog").close();
+  });
+
   setScreen("setup");
+})();
+</script>
+
+<!--
+  Solo test harness — never active unless the URL includes ?debug=1.
+  Not part of the graded game; purely for testing 4 players from one person's
+  browser. Uses html2canvas (DOM-to-image, no OS permission needed) for
+  automatic screenshots, and getDisplayMedia (real screen capture, needs one
+  manual click per tab) for optional video.
+-->
+<script>
+(function(){
+  "use strict";
+  var params = new URLSearchParams(location.search);
+  if(params.get("debug") !== "1") return;
+
+  var html2canvasReady = new Promise(function(resolve){
+    var s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+    s.onload = function(){ resolve(window.html2canvas || null); };
+    s.onerror = function(){ resolve(null); };
+    document.head.appendChild(s);
+  });
+
+  var captureSeq = 0;
+  var autoCapture = false;
+  var mediaRecorder = null;
+  var recordedChunks = [];
+  var lastStateKey = null;
+
+  function currentPlayerLabel(){
+    try{
+      if(window.__mpLatestState && window.__mpLatestState.me && window.__mpLatestState.me.name){
+        return window.__mpLatestState.me.name.replace(/[^a-z0-9]/gi, "_");
+      }
+    }catch(e){ /* fall through to URL-based label */ }
+    return params.get("as") || "unknown";
+  }
+
+  function downloadBlob(blob, filename){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  }
+
+  async function captureScreenshot(){
+    var h2c = await html2canvasReady;
+    if(!h2c){ console.warn("html2canvas failed to load — check internet access"); return; }
+    var canvas = await h2c(document.body, { backgroundColor: "#14201F" });
+    canvas.toBlob(function(blob){
+      if(!blob) return;
+      captureSeq++;
+      var ts = new Date().toISOString().replace(/[:.]/g, "-");
+      downloadBlob(blob, "capture_" + currentPlayerLabel() + "_" + String(captureSeq).padStart(3, "0") + "_" + ts + ".png");
+    }, "image/png");
+  }
+
+  async function startRecording(){
+    try{
+      var stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      recordedChunks = [];
+      mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+      mediaRecorder.ondataavailable = function(e){ if(e.data.size > 0) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = function(){
+        var blob = new Blob(recordedChunks, { type: "video/webm" });
+        downloadBlob(blob, "recording_" + currentPlayerLabel() + ".webm");
+        stream.getTracks().forEach(function(t){ t.stop(); });
+      };
+      mediaRecorder.start();
+      document.getElementById("mp-debug-record-btn").textContent = "\u23f9 Stop recording";
+    }catch(e){
+      alert("Screen recording permission was not granted for this tab.");
+    }
+  }
+  function stopRecording(){
+    if(mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+    document.getElementById("mp-debug-record-btn").textContent = "\ud83c\udfa5 Start recording";
+  }
+
+  var panel = document.createElement("div");
+  panel.style.cssText = "position:fixed;bottom:12px;right:12px;background:#1B2B2A;border:1px solid #2C4443;" +
+    "border-radius:12px;padding:10px;font:12px sans-serif;color:#e2e8f0;z-index:9999;width:210px;";
+  panel.innerHTML =
+    '<div style="font-weight:600;margin-bottom:6px;">Test harness (debug=1)</div>' +
+    '<label style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">' +
+      '<input type="checkbox" id="mp-debug-auto"> Auto-screenshot on update' +
+    '</label>' +
+    '<button id="mp-debug-shot-btn" style="width:100%;margin-bottom:6px;padding:6px;border-radius:8px;background:#3CE0A0;color:#14201F;border:none;">Screenshot now</button>' +
+    '<button id="mp-debug-record-btn" style="width:100%;padding:6px;border-radius:8px;background:#E0623C;color:#14201F;border:none;">Start recording</button>';
+  document.body.appendChild(panel);
+
+  document.getElementById("mp-debug-auto").addEventListener("change", function(e){ autoCapture = e.target.checked; });
+  document.getElementById("mp-debug-shot-btn").addEventListener("click", captureScreenshot);
+  document.getElementById("mp-debug-record-btn").addEventListener("click", function(){
+    if(mediaRecorder && mediaRecorder.state === "recording") stopRecording();
+    else startRecording();
+  });
+
+  // Change-detection on a short poll, rather than a fixed-interval capture,
+  // so a screenshot is only taken when something actually happened.
+  setInterval(function(){
+    if(!autoCapture || !window.__mpLatestState) return;
+    var key = JSON.stringify(window.__mpLatestState);
+    if(key !== lastStateKey){
+      lastStateKey = key;
+      captureScreenshot();
+    }
+  }, 800);
 })();
 </script>
 </body>
