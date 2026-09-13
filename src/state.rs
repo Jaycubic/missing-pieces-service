@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use rand::Rng;
 use sqlx::PgPool;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Mutex;
 use tokio::sync::{mpsc, oneshot};
 use tokio::time::{sleep_until, Duration, Instant};
@@ -12,6 +12,10 @@ use crate::puzzle::Puzzle;
 
 const DISCOVER_SECONDS: u64 = 120;
 const CONNECT_SECONDS: u64 = 120;
+const RECONSTRUCT_SECONDS: u64 = 120;
+const CONTRADICTION_SECONDS: u64 = 60;
+const VALIDATE_SECONDS: u64 = 60;
+const DECIDE_SECONDS: u64 = 30;
 const TOKENS_PER_PLAYER: u8 = 3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -19,6 +23,10 @@ enum PhaseKind {
     Lobby,
     Discover,
     Connect,
+    Reconstruct,
+    Contradiction,
+    Validate,
+    Decide,
     Finished,
 }
 
@@ -28,6 +36,10 @@ impl PhaseKind {
             PhaseKind::Lobby => Phase::Lobby,
             PhaseKind::Discover => Phase::Discover,
             PhaseKind::Connect => Phase::Connect,
+            PhaseKind::Reconstruct => Phase::Reconstruct,
+            PhaseKind::Contradiction => Phase::Contradiction,
+            PhaseKind::Validate => Phase::Validate,
+            PhaseKind::Decide => Phase::Decide,
             PhaseKind::Finished => Phase::Finished,
         }
     }
@@ -43,8 +55,13 @@ struct PlayerRuntime {
     connected: bool,
 }
 
+struct FinalResultInternal {
+    winning_solution_id: Option<String>,
+    team_correct: bool,
+}
+
 /// Everything the outside world can ask a room to do. The room task is the
-/// only thing that ever touches its own state — REST handlers and WebSocket
+/// only thing that ever mutates its own state — REST handlers and WebSocket
 /// connections only ever send messages in and wait for a reply.
 pub enum RoomEvent {
     Join {
@@ -76,7 +93,20 @@ struct RoomActor {
     phase_deadline: Option<Instant>,
     started_at: DateTime<Utc>,
     players: HashMap<u8, PlayerRuntime>,
+
     connections_found: Vec<(String, String)>,
+
+    current_sequence: Vec<String>,
+    sequence_solved: bool,
+    sequence_attempts: u32,
+
+    contradiction_solved: bool,
+    contradiction_attempts: u32,
+
+    flagged_solutions: HashSet<String>,
+    votes: HashMap<u8, String>,
+    final_result: Option<FinalResultInternal>,
+
     events: Vec<EventLogEntry>,
     pool: PgPool,
     rx: mpsc::UnboundedReceiver<RoomEvent>,
@@ -92,6 +122,14 @@ impl RoomActor {
             started_at: Utc::now(),
             players: HashMap::new(),
             connections_found: Vec::new(),
+            current_sequence: Vec::new(),
+            sequence_solved: false,
+            sequence_attempts: 0,
+            contradiction_solved: false,
+            contradiction_attempts: 0,
+            flagged_solutions: HashSet::new(),
+            votes: HashMap::new(),
+            final_result: None,
             events: Vec::new(),
             pool,
             rx,
@@ -203,6 +241,14 @@ impl RoomActor {
             PlayerAction::ProposeConnection { card_a, card_b } => {
                 self.handle_propose_connection(slot, &card_a, &card_b)
             }
+            PlayerAction::SubmitSequence { ordered_card_ids } => {
+                self.handle_submit_sequence(slot, ordered_card_ids)
+            }
+            PlayerAction::ProposeContradiction { card_a, card_b } => {
+                self.handle_propose_contradiction(slot, &card_a, &card_b)
+            }
+            PlayerAction::FlagSolution { solution_id } => self.handle_flag_solution(slot, &solution_id),
+            PlayerAction::CastVote { solution_id } => self.handle_cast_vote(slot, &solution_id),
             PlayerAction::Ready => { /* reserved for a future early-advance vote */ }
         }
     }
@@ -267,13 +313,64 @@ impl RoomActor {
             self.log(slot, "propose_connection", None, true);
             if self.connections_found.len() >= self.puzzle.connections.len() {
                 // Team found everything early — collapse the clock so the
-                // next tick moves straight to Finished instead of waiting
-                // out the rest of the Connect timer.
+                // next tick moves straight on instead of waiting out the rest
+                // of the Connect timer.
                 self.phase_deadline = Some(Instant::now());
             }
         } else {
             self.log(slot, "propose_connection", None, false);
         }
+    }
+
+    fn handle_submit_sequence(&mut self, slot: u8, ordered_card_ids: Vec<String>) {
+        if self.phase != PhaseKind::Reconstruct || self.sequence_solved {
+            return;
+        }
+        self.sequence_attempts += 1;
+        self.current_sequence = ordered_card_ids.clone();
+        let correct = ordered_card_ids == self.puzzle.sequence.correct_order;
+        self.log(slot, "submit_sequence", None, correct);
+        if correct {
+            self.sequence_solved = true;
+            self.phase_deadline = Some(Instant::now());
+        }
+    }
+
+    fn handle_propose_contradiction(&mut self, slot: u8, card_a: &str, card_b: &str) {
+        if self.phase != PhaseKind::Contradiction || self.contradiction_solved {
+            return;
+        }
+        self.contradiction_attempts += 1;
+        let (pa, pb) = &self.puzzle.contradiction.pair;
+        let correct = (card_a == pa && card_b == pb) || (card_a == pb && card_b == pa);
+        self.log(slot, "propose_contradiction", None, correct);
+        if correct {
+            self.contradiction_solved = true;
+            self.phase_deadline = Some(Instant::now());
+        }
+    }
+
+    fn handle_flag_solution(&mut self, slot: u8, solution_id: &str) {
+        if self.phase != PhaseKind::Validate {
+            return;
+        }
+        let now_flagged = if self.flagged_solutions.contains(solution_id) {
+            self.flagged_solutions.remove(solution_id);
+            false
+        } else {
+            self.flagged_solutions.insert(solution_id.to_string());
+            true
+        };
+        self.log(slot, "flag_solution", None, now_flagged);
+    }
+
+    fn handle_cast_vote(&mut self, slot: u8, solution_id: &str) {
+        if self.phase != PhaseKind::Decide {
+            return;
+        }
+        let changed = self.votes.get(&slot).map(|v| v != solution_id).unwrap_or(true);
+        self.votes.insert(slot, solution_id.to_string());
+        self.log(slot, "cast_vote", None, changed);
     }
 
     async fn advance_phase(&mut self) {
@@ -283,7 +380,27 @@ impl RoomActor {
                 self.phase_deadline = Some(Instant::now() + Duration::from_secs(CONNECT_SECONDS));
                 self.broadcast();
             }
-            PhaseKind::Connect => self.finish().await,
+            PhaseKind::Connect => {
+                self.phase = PhaseKind::Reconstruct;
+                self.phase_deadline = Some(Instant::now() + Duration::from_secs(RECONSTRUCT_SECONDS));
+                self.broadcast();
+            }
+            PhaseKind::Reconstruct => {
+                self.phase = PhaseKind::Contradiction;
+                self.phase_deadline = Some(Instant::now() + Duration::from_secs(CONTRADICTION_SECONDS));
+                self.broadcast();
+            }
+            PhaseKind::Contradiction => {
+                self.phase = PhaseKind::Validate;
+                self.phase_deadline = Some(Instant::now() + Duration::from_secs(VALIDATE_SECONDS));
+                self.broadcast();
+            }
+            PhaseKind::Validate => {
+                self.phase = PhaseKind::Decide;
+                self.phase_deadline = Some(Instant::now() + Duration::from_secs(DECIDE_SECONDS));
+                self.broadcast();
+            }
+            PhaseKind::Decide => self.finish().await,
             PhaseKind::Lobby | PhaseKind::Finished => {}
         }
     }
@@ -291,6 +408,16 @@ impl RoomActor {
     async fn finish(&mut self) {
         self.phase = PhaseKind::Finished;
         self.phase_deadline = None;
+
+        let mut tally: HashMap<String, u32> = HashMap::new();
+        for sol_id in self.votes.values() {
+            *tally.entry(sol_id.clone()).or_insert(0) += 1;
+        }
+        let winning = tally.iter().max_by_key(|(_, count)| **count).map(|(id, _)| id.clone());
+        let correct_id = self.puzzle.correct_solution_id().map(|s| s.to_string());
+        let team_correct = winning.is_some() && winning == correct_id;
+
+        self.final_result = Some(FinalResultInternal { winning_solution_id: winning, team_correct });
         self.broadcast();
 
         let result = db::persist_session(
@@ -393,6 +520,36 @@ impl RoomActor {
             .map(|(a, b)| FoundConnection { card_a: a.clone(), card_b: b.clone(), found_by_slot: 0 })
             .collect();
 
+        let sequence_cards = self
+            .puzzle
+            .sequence
+            .cards
+            .iter()
+            .map(|c| SequenceCardView { id: c.id.clone(), text: c.text.clone() })
+            .collect();
+
+        let contradiction_cards = self
+            .puzzle
+            .contradiction
+            .cards
+            .iter()
+            .map(|c| ContradictionCardView { id: c.id.clone(), text: c.text.clone() })
+            .collect();
+
+        let solutions = self
+            .puzzle
+            .solutions
+            .iter()
+            .map(|s| SolutionView { id: s.id.clone(), text: s.text.clone() })
+            .collect();
+
+        let mut votes: Vec<VoteView> = self
+            .votes
+            .iter()
+            .map(|(&slot, sol)| VoteView { slot, solution_id: sol.clone() })
+            .collect();
+        votes.sort_by_key(|v| v.slot);
+
         StatePush {
             phase: self.phase.as_protocol(),
             phase_ends_at,
@@ -403,6 +560,23 @@ impl RoomActor {
             others,
             connections_found,
             connections_total: self.puzzle.connections.len(),
+
+            sequence_cards,
+            sequence_length_needed: self.puzzle.sequence.correct_order.len(),
+            current_sequence: self.current_sequence.clone(),
+            sequence_solved: self.sequence_solved,
+
+            contradiction_cards,
+            contradiction_solved: self.contradiction_solved,
+
+            solutions,
+            flagged_solutions: self.flagged_solutions.iter().cloned().collect(),
+            votes,
+
+            final_result: self.final_result.as_ref().map(|f| FinalResult {
+                winning_solution_id: f.winning_solution_id.clone(),
+                team_correct: f.team_correct,
+            }),
             last_error: None,
         }
     }

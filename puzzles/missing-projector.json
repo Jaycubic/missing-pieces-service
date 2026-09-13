@@ -81,5 +81,30 @@
     ["a3", "b1"],
     ["b3", "c3"],
     ["c3", "d3"]
+  ],
+  "sequence": {
+    "cards": [
+      { "id": "seq3", "text": "Facilities received the original equipment request." },
+      { "id": "seq1", "text": "Meeting originally booked in Room 204." },
+      { "id": "seqd1", "text": "IT scheduled unrelated maintenance in Room 301 that morning." },
+      { "id": "seq5", "text": "The team discovers the projector is missing." },
+      { "id": "seq2", "text": "Room changed to Room 301." },
+      { "id": "seq4", "text": "Updated room information was not included in the request." }
+    ],
+    "correct_order": ["seq1", "seq2", "seq3", "seq4", "seq5"]
+  },
+  "contradiction": {
+    "cards": [
+      { "id": "cd1", "text": "Facilities said they were fully briefed on the new room." },
+      { "id": "cd2", "text": "Facilities said they only ever saw the original booking, never an update." },
+      { "id": "cd3", "text": "The presentation was rescheduled for 4:00 PM." },
+      { "id": "cd4", "text": "Room 301 has a working power outlet near the screen." }
+    ],
+    "pair": ["cd1", "cd2"]
+  },
+  "solutions": [
+    { "id": "sol1", "text": "Move the meeting to Room 301 and immediately request the projector be relocated there.", "correct": true },
+    { "id": "sol2", "text": "Keep the meeting in Room 204 and wait for the original projector booking to take effect.", "correct": false },
+    { "id": "sol3", "text": "Cancel the meeting and reschedule it for another day.", "correct": false }
   ]
 }

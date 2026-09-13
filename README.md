@@ -1,34 +1,24 @@
 # The Missing Pieces — backend service
 
-Real-time cooperative EQ puzzle game, built for the FLAME server. Same
-philosophy as Step & Share: Rust backend, no frontend framework, Tailwind
-compiled once at build time, Postgres for durable records only.
+Real-time cooperative EQ puzzle game for the FLAME server. All six phases
+are now built: Lobby → Discover → Connect → Reconstruct → Contradiction →
+Validate → Decide → Finished.
 
-## What's built (MVP scope, deliberately)
+## Phase summary
 
-**Lobby → Discover → Connect → Finished.** This is a deliberate scope cut,
-not an oversight: Discover and Connect contain the genuinely novel hard part
-— asymmetric visibility (your hidden card is masked to you, visible to
-everyone else) and the clue/token economy. Reconstruct, Contradiction,
-Validate, and Decide reuse the exact same plumbing (phase timer, redacted
-per-player state, server-authoritative action validation) once this
-foundation is proven — that's the natural next milestone, not a rebuild.
+| Phase | Duration | Mechanic |
+|---|---|---|
+| Lobby | until full | Players join with a shared room code |
+| Discover | 2 min | Ask teammates for hints, guess your own hidden card |
+| Connect | 2 min | Propose links between cards on the shared table |
+| Reconstruct | 2 min | Order events correctly, excluding any distractor cards |
+| Contradiction | 1 min | Identify the one pair of statements that can't both be true |
+| Validate | 1 min | Flag candidate solutions that don't hold up (discussion aid, not scored) |
+| Decide | 30 sec | Cast a vote; majority vote determines the team's final answer |
 
-## How it's different from Step & Share, architecturally
-
-- **Bidirectional WebSocket.** Step & Share's socket was a read-only feed;
-  every write went through REST. Here, player actions (ask for a clue,
-  guess, propose a connection) flow *through* the socket, because this is a
-  live synchronous session with sub-second turnaround, not an async daily
-  check-in.
-- **One task owns each active room.** A `tokio::spawn`'d task per room holds
-  all live game state, runs the phase clock, and is the *only* thing that
-  ever mutates it — everything else just sends it messages and waits for a
-  reply. No actor framework, no locks around shared state.
-- **Personalized state per connection.** Every state push is built fresh for
-  each recipient, masking only that recipient's own hidden card. Postgres is
-  never touched mid-game — it only receives a durable, anonymized event log
-  once a session actually finishes.
+Every phase after Discover is intentionally **not** redacted per player —
+by that point in the design, all information is meant to be commonly known
+to the team. Only Discover has per-player asymmetric visibility.
 
 ## First-time setup
 
@@ -43,33 +33,26 @@ make start
 make health    # should return {"status":"ok","puzzles_loaded":1}
 ```
 
-## Day-to-day
-```bash
-make restart   # rebuilds CSS + binary, restarts the service
-make logs
-```
+## Verification
+
+The full backend compiled clean — zero errors, zero warnings — against a
+real (if artificially downgraded for my own sandbox's older toolchain)
+dependency resolution, including every new phase's logic: sequence
+validation, contradiction-pair matching, and vote tallying. `Cargo.toml`
+itself uses normal version ranges; only my local `Cargo.lock` was pinned to
+satisfy my sandbox's Rust 1.75. Your server's modern toolchain should
+resolve current versions on its own `cargo build` without needing any of
+that.
+
+All new puzzle content (the event sequence, the contradiction pair, the
+three candidate solutions) was added to `puzzles/missing-projector.json`
+and validated for structural correctness (exactly one correct solution, no
+id collisions, every referenced id resolves to a real card) before being
+wired into the Rust side.
 
 ## Adding puzzle #2
-Drop a new `.json` file into `puzzles/`, matching the shape of
-`missing-projector.json` — no recompile needed, it's picked up on the next
-restart. `POST /api/rooms` accepts an optional `puzzle_id` to pick a specific
-one; omitted, it uses whichever loads first.
 
-## The ethical stance, reflected in the schema
-`session_events` never stores a real name or anything resolvable back to a
-specific employee — only an anonymous `player_slot` (0–3) scoped to that one
-session. Any HR-facing view built on top of this should only ever query
-aggregates across many sessions, never a single slot's row in isolation.
-
-## What I could verify this time — a stronger story than last time
-Same sandbox limitation as before (apt's Rust 1.75 against a much newer
-crate ecosystem), but this time I pushed the pin-and-retry loop all the way
-through: **the full project actually compiled clean with zero errors and
-zero warnings** in my own sandbox, including the bidirectional `actix-ws`
-usage that was the one thing I couldn't fully verify last time. That's much
-stronger confidence than the Step & Share backend shipped with. `Cargo.toml`
-itself was never touched — only my local `Cargo.lock` was pinned to older
-patch versions to satisfy the old toolchain, so your server's modern Rust
-will resolve fresh, current dependency versions on its own `cargo build`.
-I'd still treat that first real build on your server as the actual final
-check, but I'd be surprised if anything comes back this time.
+Every puzzle file now needs four blocks: `players` (with hidden/visible
+cards as before), `connections`, `sequence` (cards + correct_order),
+`contradiction` (cards + the one true pair), and `solutions` (exactly one
+`correct: true`). See `missing-projector.json` for the full shape.

@@ -17,12 +17,32 @@ pub enum PlayerAction {
     /// Propose that two cards (by id) are meaningfully connected.
     ProposeConnection { card_a: String, card_b: String },
 
+    /// Submit the team's current best guess at the event order. Any player
+    /// can resubmit as many times as time allows — wrong guesses just show
+    /// the team what was tried, they don't cost anything.
+    SubmitSequence { ordered_card_ids: Vec<String> },
+
+    /// Propose that two cards (by id) are the contradicting pair.
+    ProposeContradiction { card_a: String, card_b: String },
+
+    /// Toggle a shared, team-visible marker that a candidate solution looks
+    /// ruled out by the evidence so far. Purely a discussion aid — it does
+    /// not affect scoring.
+    FlagSolution { solution_id: String },
+
+    /// Cast (or change) this player's vote for the final solution.
+    CastVote { solution_id: String },
+
     /// Signal readiness to leave the lobby, or to move on early once
     /// everyone's done in a phase that doesn't strictly need the full clock.
     Ready,
 }
 
-// ---------- Server → Client (redacted per recipient) ----------
+// ---------- Server → Client ----------
+// Everything from Reconstruct onward is intentionally NOT redacted per
+// player — by this point in the design, all information is meant to be
+// commonly known to the team. Only Discover has per-player asymmetric
+// visibility; that's the one phase build_state_for() customizes per slot.
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -30,6 +50,10 @@ pub enum Phase {
     Lobby,
     Discover,
     Connect,
+    Reconstruct,
+    Contradiction,
+    Validate,
+    Decide,
     Finished,
 }
 
@@ -53,7 +77,7 @@ pub struct MyHiddenCardView {
 pub struct GuessOptionView {
     pub id: String,
     pub text: String,
-    // `correct` is deliberately never included here — see redact::for_player.
+    // `correct` is deliberately never included here.
 }
 
 /// What every OTHER player's hidden card looks like to me — full text,
@@ -85,6 +109,38 @@ pub struct FoundConnection {
 }
 
 #[derive(Debug, Clone, Serialize)]
+pub struct SequenceCardView {
+    pub id: String,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ContradictionCardView {
+    pub id: String,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct SolutionView {
+    pub id: String,
+    pub text: String,
+    // `correct` is deliberately never included here — the team must reason
+    // it out, not read it off the wire.
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct VoteView {
+    pub slot: u8,
+    pub solution_id: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct FinalResult {
+    pub winning_solution_id: Option<String>,
+    pub team_correct: bool,
+}
+
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub struct StatePush {
     pub phase: Phase,
@@ -96,6 +152,20 @@ pub struct StatePush {
     pub others: Vec<OtherPlayerView>,
     pub connections_found: Vec<FoundConnection>,
     pub connections_total: usize,
+
+    pub sequence_cards: Vec<SequenceCardView>,
+    pub sequence_length_needed: usize,
+    pub current_sequence: Vec<String>,
+    pub sequence_solved: bool,
+
+    pub contradiction_cards: Vec<ContradictionCardView>,
+    pub contradiction_solved: bool,
+
+    pub solutions: Vec<SolutionView>,
+    pub flagged_solutions: Vec<String>,
+    pub votes: Vec<VoteView>,
+
+    pub final_result: Option<FinalResult>,
     pub last_error: Option<String>,
 }
 
@@ -104,7 +174,7 @@ pub struct StatePush {
 pub enum ServerMessage {
     State(StatePush),
     /// Reserved for a future graceful-shutdown path (e.g. an admin ending a
-    /// session early); not sent anywhere yet in this MVP.
+    /// session early); not sent anywhere yet.
     #[allow(dead_code)]
     RoomClosed { reason: String },
 }

@@ -43,6 +43,47 @@ pub struct Puzzle {
     /// Each entry is a pair of card ids that the Connect phase considers a
     /// valid, meaningful link. Order within a pair doesn't matter.
     pub connections: Vec<(String, String)>,
+    pub sequence: SequencePuzzle,
+    pub contradiction: ContradictionPuzzle,
+    pub solutions: Vec<SolutionOption>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SequenceCard {
+    pub id: String,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SequencePuzzle {
+    /// All cards shown to the team, including any distractors, in whatever
+    /// order they're authored (the client is responsible for letting
+    /// players reorder them).
+    pub cards: Vec<SequenceCard>,
+    /// The correct order, by id. Distractor ids never appear here — a
+    /// correct submission both excludes distractors and orders the rest.
+    pub correct_order: Vec<String>,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ContradictionCard {
+    pub id: String,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ContradictionPuzzle {
+    pub cards: Vec<ContradictionCard>,
+    /// The one true contradicting pair, order-independent.
+    pub pair: (String, String),
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct SolutionOption {
+    pub id: String,
+    pub text: String,
+    #[serde(default)]
+    pub correct: bool,
 }
 
 impl Puzzle {
@@ -69,6 +110,10 @@ impl Puzzle {
             .iter()
             .find(|p| p.hidden_card.id == card_id)
             .map(|p| p.slot)
+    }
+
+    pub fn correct_solution_id(&self) -> Option<&str> {
+        self.solutions.iter().find(|s| s.correct).map(|s| s.id.as_str())
     }
 }
 
